@@ -1,7 +1,12 @@
 const __CurPath = process.cwd();
 let configPath = __CurPath + '/grace-config.js';
 const config = require(configPath);
-const {workerNum = 2, graceReloadOnFileChange = true} = config;
+const {
+    workerNum = 2,
+    graceReloadOnFileChange = true,
+    reloadDelay = 2000,
+    workerTimeOut = 5000
+} = config;
 const entryPath = __CurPath + '/' + config.entry;
 
 const showConfig = () => {
@@ -18,7 +23,10 @@ const showConfig = () => {
 module.exports = {
     showConfig,
     workerNum,
-    entryPath
+    entryPath,
+    graceReloadOnFileChange,
+    reloadDelay,
+    workerTimeOut
 };
 
 

@@ -16,9 +16,11 @@ npm i -g grace-server
 新建`grace-config.js`配置文件，格式如下：
 ```js
 module.exports = {
-    entry: './index.js',                //server入口文件
-    workerNum: 2,                       //cluster集群worker数量
-    // graceReloadOnFileChange: true       //监听文件修改时，进行平滑重启服务器，以后的版本中实现
+    entry: './index.js',                // server入口文件
+    workerNum: 2,                       // cluster集群worker数量
+    graceReloadOnFileChange: true,      // 监听文件修改时，进行平滑重启服务器
+    reloadDelay: 1500,                  // worker重启延时,注意，在产品模式下，延时尽量大于1.5s，如果延时过小，会发生worker重启交叉，开发模式可以将性能考虑优先，发生重启交叉的情况不会有很大影响，所以可以设置小于1.5s。
+    workerTimeOut: 5000                 // worker强制退出timeOut
 };
 ```
 2、server端入口app.js需要将server对象暴露出来
@@ -53,6 +55,13 @@ grace -v
 grace
 ```
 ### 版本更新
+- v1.1.5  
+新增`graceReloadOnFileChange`  
+通过监听本地文件，在文件修改时，进行平滑重启
+新增`reloadDelay`  
+设置worker重启延时
+新增`workerTimeOut`
+设置worker重启时强制离线timeOut
 - v1.1.4  
 优化目录结构，将task任务管理进行抽象。
 - v1.1.0  

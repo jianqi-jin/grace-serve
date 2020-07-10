@@ -1,5 +1,6 @@
 const {delay, typeCheck} = require('./util/util');
-
+const {log, TAGS} = require('./util/log');
+const {reloadDelay} = require('./readConfig');
 function TaskMannger(cluster) {
     // 监听task列表，由此可以触发子进程热更，每一个task对应一个子进程热更函数
     this.taskMap = {};
@@ -28,7 +29,7 @@ TaskMannger.prototype.reStart = function () {
             // 子进程热更函数resolve
             setTimeout(() => {
                 resolve(true);
-            }, 500);
+            }, +reloadDelay < 50 ? +reloadDelay : 50);
         });
     });
     return worker;
@@ -40,7 +41,7 @@ TaskMannger.prototype.graceReload = async function () {
         return;
     }
     this.taskLock = true;
-    console.log('start graceReload');
+    log('start graceReload', TAGS.INFO);
     // 处理task
     try {
         for (let key in this.taskMap) {
@@ -48,11 +49,12 @@ TaskMannger.prototype.graceReload = async function () {
                 // 处理this.taskMap
                 if (typeCheck(this.taskMap[key], 'Function')) {
                     await this.taskMap[key]();
-                    await delay(1500);
+                    await delay(reloadDelay);
                 }
             }
         }
-        console.log('success graceReload');
+        log('success graceReload', TAGS.SUCCESS);
+
         this.taskLock = false;
     }
     catch (e) {

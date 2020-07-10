@@ -1,4 +1,5 @@
-const {entryPath} = require('./readConfig');
+const {entryPath, workerTimeOut} = require('./readConfig');
+const {TAGS, log} = require('./util/log');
 function workProcess(cluster) {
     // 启动入口server
     let server = require(entryPath);
@@ -13,11 +14,11 @@ function workProcess(cluster) {
                 setTimeout(() => {
                     // 5s不断开，强制退出
                     process.exit(1);
-                }, 5000);
+                }, workerTimeOut);
             }
         }
         catch (e) {
-            console.log('平滑关闭server失败');
+            log('平滑关闭server失败\n请确保server导出了server实例: 例如: \n module.exports = server;', TAGS.FAILED);
             console.log(e);
         }
     });

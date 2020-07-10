@@ -1,8 +1,9 @@
 const {delay} = require('./util/util');
-const {workerNum} = require('./readConfig');
+const {workerNum, graceReloadOnFileChange} = require('./readConfig');
 const {onSigterm} = require('./singnal');
 const {TaskMannger} = require('./task');
-
+const chokidar = require('chokidar');
+const {log, TAGS} = require('./util/log');
 let task;
 const masterProcess = async cluster => {
     if (!task) {
@@ -14,21 +15,27 @@ const masterProcess = async cluster => {
         await delay(1000);
     }
     // 监听文件变动
-    // fs.watch(__CurPath, (event, filename) => {
-    //     if (!graceReloadOnFileChange) {
-    //         return;
-    //     }
-    //     console.log(`文件变动：${filename}`);
-    //     graceReload();
-    // });
+    let __curPath = process.cwd();
+    const watcher = chokidar.watch(__curPath);
+    watcher.on('change', filename => {
+        if (!graceReloadOnFileChange) {
+            return;
+        }
+        log(`文件变动：${filename}`, TAGS.INFO);
+        task.graceReload();
+    });
 
     // 退出时重启
     onSigterm(sig => {
-        console.log(`
-        收到信号：${sig}
-        重启...`);
+        log(`
+            收到信号：${sig}
+            重启...`,
+            TAGS.INFO
+        );
+
         task.graceReload();
     });
+    log('grace start success', TAGS.SUCCESS);
 };
 
 module.exports = masterProcess;
