@@ -55,6 +55,9 @@ grace -v
 grace
 ```
 ### 版本更新
+- v1.1.6  
+优化目录结构
+晚上package.json信息
 - v1.1.5  
 新增`graceReloadOnFileChange`  
 通过监听本地文件，在文件修改时，进行平滑重启

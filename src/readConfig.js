@@ -7,6 +7,8 @@ const {
     reloadDelay = 2000,
     workerTimeOut = 5000
 } = config;
+
+
 const entryPath = __CurPath + '/' + config.entry;
 
 const showConfig = () => {

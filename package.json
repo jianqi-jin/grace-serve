@@ -1,12 +1,18 @@
 {
   "name": "grace-server",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "通过cluster集群，加强node服务器的稳定性",
   "main": "./index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "jinjianqi",
+  "keywords": ["grace", "grace-load", "server", "grace-server"],
+  "homepage": "https://github.com/2359634711/grace-serve",
+  "bugs": {
+    "email": "2359634711@qq.com",
+    "url": "https://github.com/2359634711/grace-serve/issues"
+  },
   "license": "ISC",
   "bin": {
     "grace": "./index.js"
