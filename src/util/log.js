@@ -5,7 +5,6 @@ const TAGS = {
 }
 // 字色编号：30黑，31红，32绿，33黄，34蓝，35紫，36深绿，37白色
 // 背景编号：40黑，41红，42绿，43黄，44蓝，45紫，46深绿，47白色
-
 // \033[0m 关闭所有属性
 // \033[1m 设置高亮度
 // \033[4m 下划线
@@ -47,8 +46,6 @@ const log = (content, tag, title) => {
     }
     console.log(tagStr + titleStr + contentStr);
 }
-
-
 module.exports = {
     TAGS,
     log

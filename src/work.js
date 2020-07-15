@@ -6,7 +6,9 @@ const onMessageClose = (server, worker) => async msg => {
     try {
         if (msg === 'close') {
             // 此处平滑关闭
-            server.close();
+            server.close(() => {
+                process.exit(0);
+            });
             // 断开连接
             log('worker close', TAGS.INFO);
             worker.disconnect();

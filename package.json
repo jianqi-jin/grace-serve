@@ -4,10 +4,15 @@
   "description": "通过cluster集群，加强node服务器的稳定性",
   "main": "./index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "_": "node ./src/grace.js"
   },
   "author": "jinjianqi",
-  "keywords": ["grace", "grace-load", "server", "grace-server"],
+  "keywords": [
+    "grace",
+    "grace-load",
+    "server",
+    "grace-server"
+  ],
   "homepage": "https://github.com/2359634711/grace-serve",
   "bugs": {
     "email": "2359634711@qq.com",
