@@ -6,6 +6,7 @@
 ### 原理(HOW)
 ![img](./img/how.png)
 ![img](./img/how2.png)
+![img](./img/entry.png)
 ### 使用(HOW TO USE)
 - 安装
 ```bash
