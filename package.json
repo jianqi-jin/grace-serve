@@ -1,6 +1,6 @@
 {
   "name": "grace-server",
-  "version": "1.1.6",
+  "version": "1.1.61",
   "description": "通过cluster集群，加强node服务器的稳定性",
   "main": "./index.js",
   "scripts": {

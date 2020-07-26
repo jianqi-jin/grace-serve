@@ -1,4 +1,9 @@
 #!/usr/bin/env node
-const grace = require('./src/grace');
+// const grace = require('./src/grace/index');
 
-grace();
+// grace();
+
+
+const command = require('./src/command/index');
+
+command();

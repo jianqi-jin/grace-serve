@@ -1,9 +1,9 @@
-const {delay} = require('./util/util');
+const {delay} = require('../util/util');
 const {workerNum, graceReloadOnFileChange} = require('./readConfig');
 const {onSigterm} = require('./singnal');
 const {TaskMannger} = require('./task');
 const chokidar = require('chokidar');
-const {log, TAGS} = require('./util/log');
+const {log, TAGS} = require('../util/log');
 let task;
 
 const initWorker = async task => {

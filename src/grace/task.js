@@ -1,5 +1,5 @@
-const {delay, typeCheck} = require('./util/util');
-const {log, TAGS} = require('./util/log');
+const {delay, typeCheck} = require('../util/util');
+const {log, TAGS} = require('../util/log');
 const {reloadDelay} = require('./readConfig');
 function TaskMannger(cluster) {
     // 监听task列表，由此可以触发子进程热更，每一个task对应一个子进程热更函数

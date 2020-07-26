@@ -1,11 +1,12 @@
 const {entryPath, workerTimeOut} = require('./readConfig');
-const {TAGS, log} = require('./util/log');
-const {delay} = require('./util/util');
+const {TAGS, log} = require('../util/log');
+const {delay} = require('../util/util');
 
 const onMessageClose = (server, worker) => async msg => {
     try {
         if (msg === 'close') {
             // 此处平滑关闭
+            // todo 此处需要交给server进行处理，grace-server守护进程不做干预，只发送sig信号
             server.close(() => {
                 process.exit(0);
             });
@@ -25,6 +26,7 @@ const onMessageClose = (server, worker) => async msg => {
 
 function workProcess(cluster) {
     // 启动入口server
+    // todo 此处改成通过process_child的方式进行启动
     let server = require(entryPath);
     // 子进程
     cluster.worker.on('message', onMessageClose(server, cluster.worker));
