@@ -55,6 +55,40 @@ grace -v
 ```bash
 grace
 ```
+### 目录
+```
+|-- workPlace
+    |-- .gitignore
+    |-- README.md
+    |-- index.js
+    |-- package-lock.json
+    |-- package.json
+    |-- tree.md
+    |-- img
+    |   |-- entry.jpg
+    |   |-- how.png
+    |   |-- how2.png
+    |-- src
+        |-- command
+        |   |-- argReader.js
+        |   |-- index.js
+        |   |-- showConfig.js
+        |   |-- socket.js
+        |   |-- start.js
+        |   |-- stop.js
+        |-- grace
+        |   |-- index.js
+        |   |-- master.js
+        |   |-- readConfig.js
+        |   |-- singnal.js
+        |   |-- socket.js
+        |   |-- task.js
+        |   |-- work.js
+        |-- util
+            |-- log.js
+            |-- util.js
+```
+
 ### 版本更新
 - v1.1.62  
 上传原理图

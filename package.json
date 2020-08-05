@@ -23,6 +23,8 @@
     "grace": "./index.js"
   },
   "dependencies": {
-    "chokidar": "^3.4.0"
+    "chokidar": "^3.4.0",
+    "nssocket": "^0.6.0",
+    "utile": "^0.3.0"
   }
 }

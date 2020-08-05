@@ -82,19 +82,24 @@ TaskMannger.prototype.graceReload = async function () {
     // 处理task
     try {
         for (let key in this.taskMap) {
-            if (this.taskMap.hasOwnProperty(key)) {
-                // 处理this.taskMap
-                if (typeCheck(this.taskMap[key], 'Function')) {
-                    await this.taskMap[key]();
-                    await delay(reloadDelay);
-                }
+            if (!this.taskMap.hasOwnProperty(key)) {
+                continue;
             }
+            // 处理this.taskMap
+            if (!typeCheck(this.taskMap[key], 'Function')) {
+                throw 'failed graceReload';
+            }
+            await this.taskMap[key]();
+            await delay(reloadDelay);
         }
         log('success graceReload', TAGS.SUCCESS);
 
         this.taskLock = false;
     }
     catch (e) {
+        if (typeCheck(e, 'String')) {
+            log(e, TAGS.FAILED);
+        }
         console.log(e);
         this.taskLock = false;
     }
