@@ -1,7 +1,8 @@
-const {log, TAGS} = require('../util/log');
-const grace = require('../grace/index');
+const Monitor = require('../monitor/monitor');
+// 一定要使用stream，或者 'ignore'
+// 如果使用pipe链接的话，会使得当前process无法正常结束
 
 module.exports = function start() {
-    log('starting...', TAGS.INFO);
-    grace();
+    let monitor = new Monitor();
+    monitor.start();
 }

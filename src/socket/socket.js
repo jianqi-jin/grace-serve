@@ -1,24 +1,51 @@
 var nssocket = require('nssocket');
 var path = require('path');
 var utile = require('utile');
-const { Socket } = require('dgram');
-// TODO socket 基础地址文件夹，通过 grace config 进行配置。
-var socketRootDir = __dirname + '/socket';
+var util = require('../util/util');
+var controler = require('../controler');
 
-var SocketMannager = function (grace) {
+var Socket = module.exports = function (monitor) {
     // 通过grace 启动socket
-    this.grace = grace;
+    this.monitor = monitor;
     this._socket = null;
-    this._socketPath = '';
+    this._socketFile = '';
 }
+
 
 
 Socket.prototype.start = function () {
-    this._sockPath = path.join(socketRootDir,
-        [
-            new Date().getTime() + utile.randomString(3),
-            'socket'
-        ].join('.')
-    );
-    this._socket = nssocket.NsSocket
-}
+    let self = this;
+    return new Promise((resolve, reject) => {
+        this._socketFile = path.join(controler.socketDir,
+            [
+                new Date().getTime() + utile.randomString(3),
+                'socket'
+            ].join('.')
+        );
+        this._socket = nssocket.createServer(onServerCreated);
+        this._socket.on('listening', () => {
+            resolve(this._socketFile);
+        });
+        function onServerCreated(socket) {
+            socket.on('error', function() {
+                socket.destroy();
+            });
+            socket.data(['data'], () => {
+                console.log('get socket data');
+            });
+            socket.data('getProcess', () => {
+                socket.send('getProcess', self.monitor);
+            });
+            // self.monitor.on('exit', data => {
+                // console.log(data);
+                // self.monitor.start();
+            // });
+            socket.data('kill', () => {
+                self.monitor.emit('kill');
+                socket.send('kill');
+                process.exit();
+            });
+        }
+        this._socket.listen(this._socketFile);
+    })
+};
