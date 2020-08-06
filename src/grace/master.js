@@ -32,21 +32,33 @@ const getTask = (task, cluster) => {
     }
     return task;
 };
-const onKill = task => sig => {
-    log(`
-        收到信号：${sig}
-        重启...`,
-        TAGS.INFO
-    );
-    task.graceReload();
-}
+// const onKill = task => sig => {
+//     log(`
+//         收到信号：${sig}
+//         重启...`,
+//         TAGS.INFO
+//     );
+//     task.graceReload();
+// }
 
 const masterProcess = async cluster => {
     task = getTask(task, cluster);
     await initWorker(task);
     watchfiles(task);
     // 退出时重启
-    onSigterm(onKill(task));
+    // onSigterm(onKill(task));
+    process.on('message', data => {
+        console.log('grace get message:' + data);
+        if (data === 'restart') {
+            task.graceReload();
+        }
+        if (data === 'kill') {
+            process.disconnect();
+            setTimeout(() => {
+                process.exit(1);
+            }, 1e4);
+        }
+    })
     log('grace start success', TAGS.SUCCESS);
 };
 
