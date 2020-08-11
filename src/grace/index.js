@@ -2,6 +2,7 @@ const cluster = require('cluster');
 const workProcess = require('./work');
 const masterProcess = require('./master');
 const {log, TAGS} = require('../util/log');
+const { Console } = require('console');
 
 log('grace loading...', TAGS.INFO);
 if (cluster.isMaster) {

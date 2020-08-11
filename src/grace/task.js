@@ -16,18 +16,19 @@ function TaskMannger(cluster) {
 // 此函数在当worker断开链接时执行
 // 首先运行addWorker函数fork一个新的worker，执行server流程
 // 之后执行callback
-let onWorkerDisConnected = (task, callBack) => async () => {
+let addWorker = async task => {
     // 此时，子进程已经平滑断开，进行重启子进程
     try {
         await task.addWorker();
         // 子进程热更函数callBack
         log('worker fork success!', TAGS.SUCCESS);
         await delay(+reloadDelay < 50 ? +reloadDelay : 50);
-        callBack(true);
+        return true;
     }
     catch (e) {
-        log('worker fork timeOut!', TAGS.FAILED);
-        callBack(true);
+        // log('error in addworker function.', TAGS.FAILED);
+        // console.log(e);
+        return false;
     }
 };
 // 将子进程热更函数添加到taskMap，等待触发
@@ -38,10 +39,19 @@ let onWorkerDisConnected = (task, callBack) => async () => {
 let taskWorkerFunc = (task, worker) => () => new Promise(resolve => {
     // 执行task热更，此时删除当前task
     delete task.taskMap[worker.id];
-    // 向子进程发送关闭信号
-    worker.send('close');
-    // 子程序处理完关闭，断开连接时
-    worker.on('disconnect', onWorkerDisConnected(task, resolve));
+    if (worker.connected) {
+        // 向子进程发送关闭信号
+        worker.send('close');
+        // 子程序处理完关闭，断开连接时
+        worker.on('disconnect', async () => {
+            await addWorker(task);
+            resolve();
+        });
+    }
+    else {
+        worker.kill('SIGKILL');
+        addWorker(task).then(resolve);
+    }
 });
 // 保证worker fork初始化完成
 // 需要为worker 添加回调
@@ -60,20 +70,57 @@ let onWorkerForkSuccess = (successCallBack, failCallback) => async msg => {
 // server流程运行完毕，worker将发送forker success message
 // 此函数进行监听信息，收到fork success 之后，将此worker 添加如taskMap
 // 之后如果重启，则执行 graceReload 函数 即可运行taskMap里面的函数对worker进行关闭
+
+const restartWorker = ((ptime = 0, maxTimeStep = 5e2, pendingCount = 0, timeStart = new Date().getTime()) => async (task, worker) => {
+    let ctime = new Date().getTime();
+    if (ptime === 0) {
+        ptime = ctime;
+    }
+    // TODO 将spinning 的最小间隔 抽象到config
+    // timeStep为当前时刻与上一时刻的间距，
+    let timeStep = ctime - ptime;
+    let spinning = timeStep < maxTimeStep;
+    task.taskMap = task.taskMap || {};
+    let taskMap = task.taskMap;
+    if (!taskMap[worker.id]) {
+        return;
+    }
+    log('时间：' + (new Date().getTime() - timeStart), TAGS.FAILED);
+    if (spinning) {
+        pendingCount++;
+        // 防止一次性触发的重启很多，防止将很多重启延时到下一个相同的时间
+        // 也就是说，需要将 在同一时刻触发的重启 分到不同的下一时刻。
+        let spinSleepTime = pendingCount * maxTimeStep + ptime - ctime;
+        await delay(spinSleepTime);
+        pendingCount--;
+    }
+    ptime = new Date().getTime();
+    taskMap[worker.id] && await taskMap[worker.id]();
+})()
+
 TaskMannger.prototype.addWorker = function () {
     if (!this.cluster) {
         log('there is no cluster', TAGS.FAILED);
         return;
     }
     let worker = this.cluster.fork();
+    // 子进程意外退出
+    worker.on('exit', async code => {
+        log('worker process exit in code:' + code, code ? TAGS.FAILED : TAGS.SUCCESS);
+        await restartWorker(this, worker);
+    })
     // 返回一个promise
     return new Promise((resolve, reject) => {
+        // fork成功，且运行成功
         worker.on('message', onWorkerForkSuccess(resolve, reject));
+        // fork成功，但是worker退出
+        worker.on('exit', onWorkerForkSuccess(resolve, reject));
         this.taskMap[worker.id] = taskWorkerFunc(this, worker);
     });
 };
 
 TaskMannger.prototype.graceReload = async function () {
+    console.log(this.taskLock);
     if (this.taskLock) {
         return;
     }
@@ -92,7 +139,7 @@ TaskMannger.prototype.graceReload = async function () {
             await this.taskMap[key]();
             await delay(reloadDelay);
         }
-        log('success graceReload', TAGS.SUCCESS);
+        log('success graceReload' + Object.keys(this.taskMap).join(','), TAGS.SUCCESS);
 
         this.taskLock = false;
     }

@@ -40,7 +40,6 @@ const getTask = (task, cluster) => {
 //     );
 //     task.graceReload();
 // }
-
 const masterProcess = async cluster => {
     task = getTask(task, cluster);
     await initWorker(task);

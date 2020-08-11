@@ -21,20 +21,19 @@ const Monitor = module.exports = function () {
 // 继承events.EventEmitter类
 utile.inherits(Monitor, events.EventEmitter);
 
-Monitor.prototype.start = function () {
+Monitor.prototype.start = function (daemo = true) {
     // 创建grace.Log file 收集log日志
     if (!fs.existsSync(controler.logDir)) {
         this.emit('error', new Error(controler.logDir + 'not exists'));
         return;
     }
-    const graceLog = fs.openSync(path.join(controler.logDir, 'grace.log'), 'a')
-    const graceError = fs.openSync(path.join(controler.logDir, 'grace.error'), 'a')
+    const graceLog = daemo ? fs.openSync(path.join(controler.logDir, 'grace.log'), 'a') : 'inherit';
+    const graceError = daemo ? fs.openSync(path.join(controler.logDir, 'grace.error'), 'a'): 'inherit';
     // grace 子进程
     const gracePath = path.join(__dirname, '..', 'grace', 'index');
-    console.log(gracePath);
     const child = spawn(process.execPath, [gracePath], {
         stdio: ['ipc', graceLog, graceError],
-        detached: true
+        detached: !!daemo
     });
     this.on('restart', () => {
         child.send('restart');

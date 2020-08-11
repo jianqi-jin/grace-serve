@@ -4,5 +4,5 @@ const Monitor = require('../monitor/monitor');
 
 module.exports = function start() {
     let monitor = new Monitor();
-    monitor.start();
+    monitor.start(false);
 }
